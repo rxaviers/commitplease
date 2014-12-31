@@ -1,24 +1,8 @@
-var validate = require( "./lib/validate" ),
-	sanitize = require( "./lib/sanitize" );
+var validate = require( "./validate" );
 
 var messageWithMultipleLines = "Component: short message\n" +
 	"\n" +
 	"Long description";
-
-var messageWithDiff = "Component: short message\n" +
-	"\n" +
-	"some text\n" +
-	"# Long comment that has to be ignored line too long beyond 72 chars line too long beyond" +
-		"line too long line too long line too long\n" +
-	"more text\n" +
-	"# ------------------------ >8 ------------------------\n" +
-	"# Do not touch the line above.\n" +
-	"# Everything below will be removed.\n" +
-	"diff --git a/test.js b/test.js\n" +
-	"index 36978ce..8edf326 100644\n" +
-	"diff --git a/foo b/foo\n" +
-	"-	\n" +
-	"+	}, mment that has to be ignored line too long beyond 72 chars line too long beyond";
 
 var testComponent = {
 	components: [ "Test" ]
@@ -64,16 +48,10 @@ var valid = [
 		}
 	},
 	{
-		msg: messageWithDiff
-	},
-	{
 		msg: "v1.13.0"
 	},
 	{
 		msg: "0.0.1"
-	},
-	{
-		msg: "Component: Message\n#comment"
 	},
 	{
 		msg: "Component: short message\n" +
@@ -179,7 +157,7 @@ var invalid = [
 
 exports.valid = function( test ) {
 	valid.forEach(function(check, index) {
-		test.deepEqual( validate( sanitize( check.msg ), check.options ), [], "valid " + index +
+		test.deepEqual( validate( check.msg, check.options ), [], "valid " + index +
 			" " + check.msg );
 	});
 	test.done();
@@ -187,14 +165,8 @@ exports.valid = function( test ) {
 
 exports.invalid = function( test ) {
 	invalid.forEach(function(check, index) {
-		test.deepEqual( validate( sanitize( check.msg ), check.options ), check.expected,
+		test.deepEqual( validate( check.msg, check.options ), check.expected,
 			"invalid " + index + " " + check.msg );
 	});
-	test.done();
-};
-
-exports.sanitze = function( test ) {
-	test.strictEqual( sanitize( messageWithMultipleLines ), messageWithMultipleLines );
-	test.strictEqual( sanitize( messageWithDiff ), "Component: short message\n\nsome text\nmore text" );
 	test.done();
 };
